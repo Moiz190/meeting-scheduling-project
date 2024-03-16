@@ -4,3 +4,4 @@ import sequelize from "@/db/init";
 
 const Users = UsersModel(sequelize, DataTypes);
 export { Users };
+

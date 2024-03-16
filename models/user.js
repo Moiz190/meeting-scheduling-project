@@ -1,6 +1,11 @@
 "use strict";
 import { Model } from "sequelize";
+
 const initUsers = (sequelize, DataTypes) => {
+  /**
+   * @extends {Model<import('../src/types/user').IUser, any>}
+   * @implements {import('../src/types/user').IUser}
+   */
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -16,8 +21,11 @@ const initUsers = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      availabilityStart: DataTypes.INTEGER,
-      availabilityEnd: DataTypes.INTEGER,
+      timeAvailabilityStart: DataTypes.INTEGER,
+      timeAvailabilityEnd: DataTypes.INTEGER,
+      DayAvailabilityStart: DataTypes.STRING,
+      DayAvailabilityEnd: DataTypes.STRING,
+      bufferTime: DataTypes.INTEGER,
     },
     {
       sequelize,

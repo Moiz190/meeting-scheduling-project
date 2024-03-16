@@ -1,20 +1,28 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { IGenericReponse, ILoginCredential } from "../../types/interface";
+import { IGenericReponse, ISignupCredential, IToaster } from "@/types";
 import InputField from "@/components/common/InputField";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
-import { ApiError } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
+import { Toaster } from "@/components/common/Toaster";
 const Login = () => {
-  const [loginCreds, setLoginCreds] = useState<ILoginCredential>({
-    name: "",
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginCreds, setLoginCreds] = useState<Partial<ISignupCredential>>({
+    email: "",
     password: "",
   });
-  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [toaster, setToaster] = useState<IToaster>({
+    message: '',
+    isVisible: false,
+    type: 'positive',
+  })
+  const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginCreds((oldValue) => ({
       ...oldValue,
-      name: event.target.value,
+      email: event.target.value,
     }));
   };
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,18 +33,24 @@ const Login = () => {
   };
   const handleLogin = async () => {
     try {
-      const { name, password } = loginCreds;
+      setIsLoading(true)
+      const { email, password } = loginCreds;
       const response = await makeApiCall<IGenericReponse<null>>({
         endpoint: "login",
         method: "POST",
-        data: { name, password },
+        data: { email, password },
       });
       if (response.type === "Success") {
-        console.log("okay");
+        router.push('/meeting')
       }
     } catch (error) {
+      setToaster({ isVisible: true, message: error as string, type: 'negative' })
       console.log(error);
     }
+    setIsLoading(false)
+    setTimeout(() => {
+      setToaster({ isVisible: false, message: '', type: 'positive' })
+    }, 3000)
   };
   return (
     <div className="h-screen p-2 md:p-4 grid grid-col-1 md:grid-cols-2">
@@ -62,8 +76,8 @@ const Login = () => {
                   label="Email"
                   type="email"
                   id="email"
-                  value={loginCreds.name}
-                  onChange={handleChangeName}
+                  value={loginCreds.email}
+                  onChange={handleChangeEmail}
                 />
               </div>
               <div>
@@ -86,7 +100,8 @@ const Login = () => {
               <Button
                 label="Login"
                 variant="primary"
-                disabled={!loginCreds.name || !loginCreds.password}
+                disabled={!loginCreds.email || !loginCreds.password}
+                loading={isLoading}
                 onClick={handleLogin}
               />
             </div>
@@ -100,6 +115,9 @@ const Login = () => {
           </div>
         </div>
       </div>
+      {toaster.isVisible &&
+        <Toaster message={toaster.message} type={toaster.type} />
+      }
     </div>
   );
 };
