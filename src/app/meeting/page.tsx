@@ -16,7 +16,6 @@ const Meeting = () => {
         startTime: 0,
         endTime: '',
         day: 0,
-
     })
     const [isFetchingUserRecords, setIsFetchingUserRecords] = useState(false)
     const [isFetchingDateRecords, setIsFetchingDateRecords] = useState(false)
@@ -53,7 +52,6 @@ const Meeting = () => {
             })
             if (response.type === "Success") {
                 setDateRecords(response.data)
-                console.log(response.data)
             }
         } catch (e) {
             console.error(e)
@@ -76,15 +74,6 @@ const Meeting = () => {
             ...oldValue, startTime: Number(event[0].timeAvailabilityStart)
         }))
     }
-    const time = [
-        { name: 'time 1 - time 2', id: 1 },
-        { name: 'time 2 - time 3', id: 2 },
-        { name: 'time 3 - time 4', id: 3 },
-        { name: 'time 4 - time 5', id: 4 },
-        { name: 'time 5 - time 6', id: 5 },
-        { name: 'time 6 - time 7', id: 6 },
-        { name: 'time 7 - time 8', id: 7 }
-    ]
     const handleLogout = async () => {
         try {
             setIsLoading(true)
@@ -119,8 +108,8 @@ const Meeting = () => {
                                 Select Date for meeting
                             </span>
                         </div>
-                        <MultiSelect className={'w-full'} label='Available Date' isLoading={isFetchingDateRecords} singleSelect={true} onChange={handleSelectMeetingDate} options={userRecords} 
-                        // optionLabel={'buffer_time'} 
+                        <MultiSelect className={'w-full'} label='Available Date' isLoading={isFetchingDateRecords} singleSelect={true} onChange={handleSelectMeetingDate} options={dateRecords}
+                            optionLabel={'available_day_start'} optionLabel2={'available_day_end'}
                         />
                     </div>
                     <div>
@@ -129,7 +118,7 @@ const Meeting = () => {
                                 Select Time for meeting
                             </span>
                         </div>
-                        <MultiSelect className={'w-full'} label='Available Timeslot' singleSelect={true} onChange={handleSelectMeetingTime} options={time} />
+                        <MultiSelect className={'w-full'} label='Available Timeslot' isLoading={isFetchingDateRecords} singleSelect={true} optionLabel='available_time_start' optionLabel2='available_time_end' onChange={handleSelectMeetingTime} options={dateRecords} />
                     </div>
 
                 </div>
@@ -153,8 +142,7 @@ const Meeting = () => {
                                     <Button label='Cancel' className='p-0.5 w-16 text-xs' />
                                 </div>
                             </div>
-                            )
-                            )
+                            ))
                     }
                 </div>
             </div>

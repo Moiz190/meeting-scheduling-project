@@ -20,3 +20,11 @@ export interface IUserAvailability{
     createdAt:string,
     updatedAt:string
 }
+export interface IUserMeeting{
+    id:number,
+    target_user_id:number,
+    source_user_id:number,
+    meeting_id:number,
+    createdAt:string,
+    updatedAt:string
+}
