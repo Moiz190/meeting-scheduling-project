@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 interface CustomSelectProps {
   label: string;
   options: any[];
+  // optionLabel?:string,
   isLoading?:boolean;
   optionsWidth?:string,
   className?:string;
@@ -18,6 +19,7 @@ export default function CustomSelect({
   label,
   isLoading,
   options,
+  // optionLabel,
   onChange,
   className,
   optionsWidth,
@@ -89,7 +91,9 @@ export default function CustomSelect({
               ? label
               : selectedItems.map((item, index) => (
                   <div key={item} className={`flex items-center text-ellipsis whitespace-nowrap overflow-hidden w-24 ${optionsWidth}`}>
-                    {item.name}
+                    {
+                    // optionLabel ? item[optionLabel] :
+                     item.name}
                     <span
                       className="text-red-600 cursor-pointer ml-1"
                       onClick={(e) => {
@@ -154,7 +158,7 @@ export default function CustomSelect({
 
       {isOpen && (
         <div
-          className={`origin-top-right w-[240px] min-h-[250px] h-full max-h-96 overflow-auto${
+          className={`origin-top-right w-[240px] max-h-48 min-h-24 overflow-auto${
             selectorWidth ? `${selectorWidth}` : ""
           } absolute right-0 mt-2 
          rounded-md  shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[50] ${

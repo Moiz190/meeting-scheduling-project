@@ -18,7 +18,8 @@ const createMeetingsModel = (sequelize, DataTypes) => {
     }
   }
   meetings.init({
-    firstName: DataTypes.STRING
+    meeting_start: DataTypes.STRING,
+    meeting_end: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'meetings',

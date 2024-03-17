@@ -3,22 +3,32 @@ import React, { useEffect, useState } from 'react'
 import MultiSelect from '@/components/common/MultiSelect'
 import Button from '@/components/common/Button'
 import { makeApiCall } from '@/utils/makeApiCall'
-import { IGenericReponse, IUser } from '@/types'
+import { IGenericReponse, IUser, IUserAvailability } from '@/types'
 import { IMeetings } from '@/types/meeting'
+import { useRouter } from "next/navigation";
 const Meeting = () => {
+    const router = useRouter()
     const [userRecords, setUserRecords] = useState<IUser[]>([])
+    const [dateRecords, setDateRecords] = useState<IUserAvailability[]>([])
     const [scheduledMeetings, setScheduledMeetings] = useState<IMeetings[]>([])
     const [newMeeting, setNewMeeting] = useState<IMeetings>({
         user: null,
-        startTime: '',
+        startTime: 0,
         endTime: '',
-        day:0,
-        
+        day: 0,
+
     })
     const [isFetchingUserRecords, setIsFetchingUserRecords] = useState(false)
+    const [isFetchingDateRecords, setIsFetchingDateRecords] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     useEffect(() => {
         fetchUserRecords()
     }, [])
+    useEffect(() => {
+        if (newMeeting.user) {
+            getUserAvailableDate(newMeeting.user)
+        }
+    }, [newMeeting.user])
     const fetchUserRecords = async () => {
         try {
             setIsFetchingUserRecords(true)
@@ -34,19 +44,36 @@ const Meeting = () => {
         }
         setIsFetchingUserRecords(false)
     }
+    const getUserAvailableDate = async (id: number) => {
+        try {
+            setIsFetchingDateRecords(true)
+            const response = await makeApiCall<IGenericReponse<IUserAvailability[]>>({
+                endpoint: `user/${id}/availability`,
+                method: "GET",
+            })
+            if (response.type === "Success") {
+                setDateRecords(response.data)
+                console.log(response.data)
+            }
+        } catch (e) {
+            console.error(e)
+        }
+        setIsFetchingDateRecords(false)
+    }
+
     const handleSelectMeetingUser = (event: IUser[]) => {
         setNewMeeting(oldValue => ({
-        ...oldValue, user: event[0].id
+            ...oldValue, user: event[0].id
         }))
     }
     const handleSelectMeetingDate = (event: IUser[]) => {
         setNewMeeting(oldValue => ({
-        ...oldValue,day: event[0].dayAvailabilityStart
+            ...oldValue, day: event[0].dayAvailabilityStart
         }))
     }
     const handleSelectMeetingTime = (event: IUser[]) => {
         setNewMeeting(oldValue => ({
-        ...oldValue, startTime: event[0].timeAvailabilityStart
+            ...oldValue, startTime: Number(event[0].timeAvailabilityStart)
         }))
     }
     const time = [
@@ -58,8 +85,23 @@ const Meeting = () => {
         { name: 'time 6 - time 7', id: 6 },
         { name: 'time 7 - time 8', id: 7 }
     ]
+    const handleLogout = async () => {
+        try {
+            setIsLoading(true)
+            const res = await makeApiCall<IGenericReponse<null>>({ endpoint: 'logout', method: 'POST' })
+            if (res.type === 'Success') {
+                router.push('/login')
+            }
+        } catch (e) {
+            console.error(e)
+        }
+        setIsLoading(false)
+    }
     return (
         <div className="h-screen p-2 min-w-[300px] flex flex-col items-center justify-center bg-black gap-10">
+            <div className='w-full flex justify-end'>
+                <Button className='text-sm !w-20' onClick={handleLogout} label='Logout' variant='secondary' loading={isLoading} />
+            </div>
             <div className="font-semibold text-center text-white text-3xl"><span>Schedule a Meeting</span></div>
             <div className="flex gap-10 h-[400px] max-w-[900px] w-full justify-center">
                 <div className='p-3 min-w-[305px] max-w-[400px] w-full bg-[#5c7481ab] rounded-lg'>
@@ -77,7 +119,9 @@ const Meeting = () => {
                                 Select Date for meeting
                             </span>
                         </div>
-                        <MultiSelect className={'w-full'} label='Available Date' singleSelect={true} onChange={handleSelectMeetingDate} options={time} />
+                        <MultiSelect className={'w-full'} label='Available Date' isLoading={isFetchingDateRecords} singleSelect={true} onChange={handleSelectMeetingDate} options={userRecords} 
+                        // optionLabel={'buffer_time'} 
+                        />
                     </div>
                     <div>
                         <div className="text-lg mb-1">

@@ -5,37 +5,36 @@ import { Users } from "@/models/user";
 
 export async function POST(request: Request, response: NextApiResponse) {
   try {
-    // const { email, password } = await request.json();
-    // if (!email || email.trim() === '') {
-    //   return NextResponse.json({
-    //     message: "Email is required",
-    //   }, {
-    //     status:
-    //       400
-    //   });
-    // }
-    // const myUser = await Users.findOne({
-    //   where: {
-    //     email: email,
-    //     password: password,
-    //   },
-    // });
-    // if (!myUser) {
-    //   return NextResponse.json({
-    //     message: "User with given email and password not found",
-    //   }, {
-    //     status:
-    //       400
-    //   });
-    // }
-    cookies().set("token", 'myUser.dataValues.id.toString()')
+    const { email, password } = await request.json();
+    if (!email || email.trim() === '') {
+      return NextResponse.json({
+        message: "Email is required",
+      }, {
+        status:
+          400
+      });
+    }
+    const myUser = await Users.findOne({
+      where: {
+        email: email,
+        password: password,
+      },
+    });
+    if (!myUser) {
+      return NextResponse.json({
+        message: "User with given email and password not found",
+      }, {
+        status:
+          400
+      });
+    }
+    cookies().set("token", myUser.dataValues.id.toString())
     return NextResponse.json({
-      data: "myUser.dataValues",
+      data: myUser.dataValues,
       type: "Success",
       code: 200,
     });
   } catch (error) {
-    console.error(error)
     return NextResponse.json({
       message: "Unexpected Server error",
     }, {

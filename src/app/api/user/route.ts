@@ -7,7 +7,7 @@ export async function GET(request: Request, response: NextApiResponse) {
 
         const userRecords = await Users.findAll()
         return NextResponse.json({
-            data: "userRecords",
+            data: userRecords,
             type: 'Success',
             code: 200
         })

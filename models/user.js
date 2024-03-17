@@ -21,11 +21,6 @@ const initUsers = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      timeAvailabilityStart: DataTypes.INTEGER,
-      timeAvailabilityEnd: DataTypes.INTEGER,
-      DayAvailabilityStart: DataTypes.STRING,
-      DayAvailabilityEnd: DataTypes.STRING,
-      bufferTime: DataTypes.INTEGER,
     },
     {
       sequelize,

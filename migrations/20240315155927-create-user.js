@@ -21,12 +21,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      availabilityStart: {
-        type: Sequelize.INTEGER,
-      },
-      availabilityEnd: {
-        type: Sequelize.INTEGER,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

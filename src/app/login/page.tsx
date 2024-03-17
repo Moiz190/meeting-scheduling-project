@@ -9,16 +9,12 @@ import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/common/Toaster";
 const Login = () => {
   const router = useRouter()
+  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false);
   const [loginCreds, setLoginCreds] = useState<Partial<ISignupCredential>>({
     email: "",
     password: "",
   });
-  const [toaster, setToaster] = useState<IToaster>({
-    message: '',
-    isVisible: false,
-    type: 'positive',
-  })
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginCreds((oldValue) => ({
       ...oldValue,
@@ -43,14 +39,10 @@ const Login = () => {
       if (response.type === "Success") {
         router.push('/meeting')
       }
-    } catch (error) {
-      setToaster({ isVisible: true, message: error as string, type: 'negative' })
-      console.log(error);
+    } catch (e) {
+      setError(e as string)
     }
     setIsLoading(false)
-    setTimeout(() => {
-      setToaster({ isVisible: false, message: '', type: 'positive' })
-    }, 3000)
   };
   return (
     <div className="h-screen p-2 md:p-4 grid grid-col-1 md:grid-cols-2">
@@ -61,7 +53,7 @@ const Login = () => {
         min-w-[305px] w-full max-w-[350px]"
         >
           <div>
-            <div className="text-center dark:text-white text-black font-medium text-2xl py-4 mb-4">
+            <div className="text-center dark:text-white text-black font-medium text-2xl py-2 mb-4">
               <span>Login Page</span>
             </div>
             <div className="flex flex-col gap-2 mb-6">
@@ -105,6 +97,12 @@ const Login = () => {
                 onClick={handleLogin}
               />
             </div>
+            {
+              error &&
+              <div className="bg-white bg-opacity-50 text-xs text-black text-center mb-1 p-1">
+                {error}
+              </div>
+            }
             <div className="text-xs text-right">
               <Link href={"/signup"}>
                 <span className="border-b border-b-transparent hover:text-blue-600 hover:cursor-pointer pb-0.5 hover:border-b-blue-600 font-medium">
@@ -115,9 +113,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-      {toaster.isVisible &&
-        <Toaster message={toaster.message} type={toaster.type} />
-      }
     </div>
   );
 };

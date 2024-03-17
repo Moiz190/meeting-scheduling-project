@@ -1,6 +1,6 @@
 export interface IMeetings {
     user:number | null,
-    startTime:string,
+    startTime:number,
     endTime:string,
     day:number,
 }

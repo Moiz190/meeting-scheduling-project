@@ -1,54 +1,37 @@
 import { Users } from '@/models/user';
+import { UserAvailability } from '@/models/userAvailability';
+import { ISignupPayload, IUserAvailability } from '@/types';
 import { NextApiResponse } from 'next';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-interface UserPayload {
-    name: string,
-    email: string,
-    password: string,
-    availabilityStart: string,
-    availabilityEnd: string,
-}
 export async function POST(request: Request, response: NextApiResponse) {
     try {
         if (request.method !== 'POST') {
             return NextResponse.json({ message: 'Method not allowed' }, { status: 405 })
         }
-        const payload = await request.json()
-        console.log(payload)
-        const keys = ['name', 'password', 'email', 'timeAvailabilityStart', 'timeAvailabilityEnd', 'bufferTime', 'dayAvailabilityStart', 'dayAvailabilityEnd']
-        const emptyKeys = keys.filter(key => {
-            try {
-
-                return !(key.trim() in payload) || payload[key.trim()].trim() === ''
-            }
-            catch (e) {
-
-                const payloadHasKey = key.trim() in payload;
-                // const r = payload[key.trim()].trim() === ''
-                console.log(payloadHasKey, key);
-                return false
-
-            }
-        })
+        const payload = await request.json() as ISignupPayload
+        const keys = [' name', ' password', ' email', ' timeAvailabilityStart', ' timeAvailabilityEnd', ' bufferTime', ' dayAvailabilityStart', ' dayAvailabilityEnd']
+        const emptyKeys = keys.filter(key => !(key.trim() in payload))
         if (emptyKeys.length > 0) {
-            return NextResponse.json({ message: `The following keys are empty: ${emptyKeys.join(", ")}` }, { status: 400 })
+            return NextResponse.json({ message: `The following keys are empty: ${emptyKeys}` }, { status: 400 })
         }
-        await Users.create({
-            name: payload.name,
-            email: payload.email,
-            password: payload.password,
-            timeAvailabilityStart: parseInt(payload.timeAvailabilityStart),
-            timeAvailabilityEnd: parseInt(payload.timeAvailabilityEnd),
-            dayAvailabilityStart: payload.dayAvailabilityStart,
-            dayAvailabilityEnd: payload.dayAvailabilityEnd,
-            bufferTime: payload.bufferTime
-        })
-        const users = await Users.findAll()
+        const userPayload = { name: payload.name, email: payload.email, password: payload.password }
+        const response = await Users.create(userPayload)
+
+        const userAvailabilityPayload: Omit<IUserAvailability, "createdAt" | "updatedAt"> = {
+            user_id: response.dataValues.id,
+            available_day_start: payload.dayAvailabilityStart.id,
+            available_day_end: payload.dayAvailabilityEnd.id,
+            buffer_time: payload.bufferTime,
+            available_time_end: payload.timeAvailabilityEnd,
+            available_time_start: payload.timeAvailabilityStart,
+        }
+        await UserAvailability.create(userAvailabilityPayload)
+        cookies().set('token',response.dataValues.id.toString())
         return NextResponse.json({
             type: 'Success',
             message: "User Signed up successfully",
             payload,
-            users
         })
     } catch (error) {
         console.log(error)
