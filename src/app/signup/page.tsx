@@ -21,11 +21,11 @@ const Signup = () => {
     name: "",
     password: "",
   });
-  const [toaster, setToaster] = useState<IToaster>({
-    message: "",
-    isVisible: false,
-    type: "positive",
-  });
+  // const [toaster, setToaster] = useState<IToaster>({
+  //   message: "",
+  //   isVisible: false,
+  //   type: "positive",
+  // });
   const [signupCreds, setSignupCreds] = useState<ISignupCredential>({
     name: "",
     password: "",
@@ -85,18 +85,18 @@ const Signup = () => {
       setValidation((oldVal) => ({ ...oldVal, password: "" }));
     }
   };
-  const handleEndDayChange = (event: string[]) => {
-    setSignupCreds((oldValue) => ({
-      ...oldValue,
-      dayAvailabilityEnd: event[0],
-    }));
-  };
-  const handleStartDayChange = (event: string[]) => {
-    setSignupCreds((oldValue) => ({
-      ...oldValue,
-      dayAvailabilityStart: event[0],
-    }));
-  };
+  // const handleEndDayChange = (event: string[]) => {
+  //   setSignupCreds((oldValue) => ({
+  //     ...oldValue,
+  //     dayAvailabilityEnd: event[0],
+  //   }));
+  // };
+  // const handleStartDayChange = (event: string[]) => {
+  //   setSignupCreds((oldValue) => ({
+  //     ...oldValue,
+  //     dayAvailabilityStart: event[0],
+  //   }));
+  // };
   // const handleStartTimeChange = (
   //   event: React.ChangeEvent<HTMLInputElement>
   // ) => {
@@ -295,9 +295,9 @@ const Signup = () => {
           </div>
         </div>
       </div>
-      {toaster.isVisible && (
+      {/* {toaster.isVisible && (
         <Toaster message={toaster.message} type={toaster.type} />
-      )}
+      )} */}
     </div>
   );
 };
