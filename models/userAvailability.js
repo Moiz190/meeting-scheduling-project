@@ -4,8 +4,8 @@ import {
 } from 'sequelize';
 const createUserAvailabilityModel = (sequelize, DataTypes) => {
     /**
-   * @extends {Model<import('../src/types/user').IUserAvailability, any>}
-   * @implements {import('../src/types/user').IUserAvailability}
+   * @extends {Model<import('../src/types/user').IUserAvailabilityResponse, any>}
+   * @implements {import('../src/types/user').IUserAvailabilityResponse}
    */
     class UserAvailability extends Model {
         /**
@@ -18,6 +18,7 @@ const createUserAvailabilityModel = (sequelize, DataTypes) => {
         }
     }
     UserAvailability.init({
+        id:DataTypes.INTEGER,
         user_id: DataTypes.INTEGER,
         available_day_start: DataTypes.INTEGER,
         available_day_end: DataTypes.INTEGER,
