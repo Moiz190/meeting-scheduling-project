@@ -1,54 +1,60 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { IGenericReponse, ILoginCredential, ISignupCredential, IToaster } from "@/types";
+import { IGenericReponse, ILoginCredential } from "@/types";
 import InputField from "@/components/common/InputField";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
 import { useRouter } from "next/navigation";
-import { Toaster } from "@/components/common/Toaster";
+
 const Login = () => {
-  const router = useRouter()
+  const router = useRouter();
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loginCreds, setLoginCreds] = useState<ILoginCredential>({
     email: "",
     password: "",
   });
   const [validation, setValidation] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value
+    const newValue = event.target.value.trim();
     setLoginCreds((oldValue) => ({
       ...oldValue,
       email: newValue,
     }));
     if (!newValue) {
-      setValidation((oldVal) => ({ ...oldVal, email: 'Email cannot be empty' }));
-    }else if(!emailRegex.test(newValue)){
-      setValidation((oldVal) => ({ ...oldVal, email: 'Email is Invalid' }))
-    }else {
-      setValidation((oldVal) => ({ ...oldVal, email: '' }));
+      setValidation((oldVal) => ({
+        ...oldVal,
+        email: "Email cannot be empty",
+      }));
+    } else if (!emailRegex.test(newValue)) {
+      setValidation((oldVal) => ({ ...oldVal, email: "Email is Invalid" }));
+    } else {
+      setValidation((oldVal) => ({ ...oldVal, email: "" }));
     }
   };
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value
+    const newValue = event.target.value;
     setLoginCreds((oldValue) => ({
       ...oldValue,
       password: newValue,
     }));
     if (!newValue) {
-      setValidation((oldVal) => ({ ...oldVal, password: 'Password cannot be empty' }));
+      setValidation((oldVal) => ({
+        ...oldVal,
+        password: "Password cannot be empty",
+      }));
     } else {
-      setValidation((oldVal) => ({ ...oldVal, password: '' }));
+      setValidation((oldVal) => ({ ...oldVal, password: "" }));
     }
   };
   const handleLogin = async () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const { email, password } = loginCreds;
       const response = await makeApiCall<IGenericReponse<null>>({
         endpoint: "login",
@@ -56,12 +62,12 @@ const Login = () => {
         data: { email, password },
       });
       if (response.type === "Success") {
-        router.push('/meeting')
+        router.push("/meeting");
       }
     } catch (e) {
-      setError(e as string)
+      setError(e as string);
     }
-    setIsLoading(false)
+    setIsLoading(false);
   };
   return (
     <div className="h-screen p-2 md:p-4 grid grid-col-1 md:grid-cols-2">
@@ -85,7 +91,7 @@ const Login = () => {
                 </label>
                 <InputField
                   label="Email"
-                  type="email"
+                  type="text"
                   id="email"
                   error={validation.email}
                   value={loginCreds.email}
@@ -118,12 +124,11 @@ const Login = () => {
                 onClick={handleLogin}
               />
             </div>
-            {
-              error &&
+            {error && (
               <div className="bg-white text-red-900 bg-opacity-50 text-xs text-center mb-1 p-1">
                 {error}
               </div>
-            }
+            )}
             <div className="text-xs text-right">
               <Link href={"/signup"}>
                 <span className="border-b border-b-transparent hover:text-blue-600 hover:cursor-pointer pb-0.5 hover:border-b-blue-600 font-medium">
@@ -138,4 +143,3 @@ const Login = () => {
   );
 };
 export default Login;
-
