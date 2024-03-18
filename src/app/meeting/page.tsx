@@ -6,8 +6,10 @@ import { makeApiCall } from '@/utils/makeApiCall'
 import { IGenericReponse, IUser, IUserAvailability } from '@/types'
 import { IMeetings } from '@/types/meeting'
 import { useRouter } from "next/navigation";
+import { getCookies } from 'cookies-next'
 const Meeting = () => {
     const router = useRouter()
+    const loginToken = getCookies() as { token: string }
     const [userRecords, setUserRecords] = useState<IUser[]>([])
     const [dateRecords, setDateRecords] = useState<IUserAvailability[]>([])
     const [scheduledMeetings, setScheduledMeetings] = useState<IMeetings[]>([])
@@ -20,14 +22,6 @@ const Meeting = () => {
     const [isFetchingUserRecords, setIsFetchingUserRecords] = useState(false)
     const [isFetchingDateRecords, setIsFetchingDateRecords] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    useEffect(() => {
-        fetchUserRecords()
-    }, [])
-    useEffect(() => {
-        if (newMeeting.user) {
-            getUserAvailableDate(newMeeting.user)
-        }
-    }, [newMeeting.user])
     const fetchUserRecords = async () => {
         try {
             setIsFetchingUserRecords(true)
@@ -36,7 +30,8 @@ const Meeting = () => {
                 method: "GET",
             })
             if (response.type === "Success") {
-                setUserRecords(response.data)
+                const filteredRecords = response.data.filter(record => record.id !== Number(loginToken.token))
+                setUserRecords(filteredRecords)
             }
         } catch (e) {
             console.error(e)
@@ -58,6 +53,14 @@ const Meeting = () => {
         }
         setIsFetchingDateRecords(false)
     }
+    useEffect(() => {
+        fetchUserRecords()
+    }, [])
+    useEffect(() => {
+        if (newMeeting.user) {
+            getUserAvailableDate(newMeeting.user)
+        }
+    }, [newMeeting.user])
 
     const handleSelectMeetingUser = (event: IUser[]) => {
         setNewMeeting(oldValue => ({
@@ -105,11 +108,11 @@ const Meeting = () => {
                     <div className='mb-2'>
                         <div className="text-lg mb-1">
                             <span>
-                                Select Date for meeting
+                                Select Day for meeting
                             </span>
                         </div>
-                        <MultiSelect className={'w-full'} label='Available Date' isLoading={isFetchingDateRecords} singleSelect={true} onChange={handleSelectMeetingDate} options={dateRecords}
-                            optionLabel={'available_day_start'} optionLabel2={'available_day_end'}
+                        <MultiSelect className={'w-full'} label='Available Days' isLoading={isFetchingDateRecords} singleSelect={true} onChange={handleSelectMeetingDate} options={dateRecords}
+                            optionLabel={'available_day_start'} isDay={true} optionLabel2={'available_day_end'}
                         />
                     </div>
                     <div>
@@ -142,8 +145,7 @@ const Meeting = () => {
                                     <Button label='Cancel' className='p-0.5 w-16 text-xs' />
                                 </div>
                             </div>
-                            ))
-                    }
+                            ))}
                 </div>
             </div>
             <Button label='Schedule' variant='secondary' className='border-2 border-transparent' />

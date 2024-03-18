@@ -31,11 +31,11 @@ module.exports = {
         allowNull: false
       },
       available_time_start: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       available_time_end: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       createdAt: {

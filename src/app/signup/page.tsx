@@ -15,6 +15,11 @@ const Signup = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('')
+    const [validation, setValidation] = useState({
+        email: '',
+        name:'',
+        password: '',
+    });
     const [toaster, setToaster] = useState<IToaster>({
         message: '',
         isVisible: false,

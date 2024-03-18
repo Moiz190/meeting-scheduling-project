@@ -1,7 +1,10 @@
+import { days } from "@/app/signup/utils";
+import { convertMinutesToTime } from "@/utils/convertMinutesToTime";
 import { useState, useEffect, useRef } from "react";
 interface CustomSelectProps {
   label: string;
   options: any[];
+  isDay?: boolean,
   optionLabel?: string,
   optionLabel2?: string,
   isLoading?: boolean;
@@ -18,6 +21,7 @@ export default function CustomSelect({
   label,
   isLoading,
   options,
+  isDay = false,
   optionLabel,
   optionLabel2,
   onChange,
@@ -89,8 +93,8 @@ export default function CustomSelect({
             {selectedItems.length === 0
               ? label
               : selectedItems.map((item, index) => (
-                <div key={item} className={`flex items-center text-ellipsis whitespace-nowrap overflow-hidden w-24 ${optionsWidth}`}>
-                  {(optionLabel && optionLabel2) ? `${item[optionLabel]} - ${item[optionLabel2]}` : optionLabel ? item[optionLabel] : item.name}
+                <div key={item} className={`flex items-center text-ellipsis whitespace-nowrap overflow-hidden w-36 ${optionsWidth}`}>
+                  {(optionLabel && optionLabel2) ? `${!isDay ? convertMinutesToTime(item[optionLabel]) : days[item[optionLabel]]?.name} - ${!isDay ? convertMinutesToTime(item[optionLabel2]) : days[item[optionLabel]]?.name}` : optionLabel ? item[optionLabel] : item.name}
                   <span
                     className="text-red-600 cursor-pointer ml-1"
                     onClick={(e) => {
@@ -178,7 +182,7 @@ export default function CustomSelect({
                       } text-white dark:text-black  cursor-pointer select-none relative px-4 py-2 z-[50]`}
                     role="menuitem"
                   >
-                    {(optionLabel && optionLabel2) ? `${option[optionLabel]} - ${option[optionLabel2]}` : (optionLabel) ? option[optionLabel] : option.name}
+                    {(optionLabel && optionLabel2) ? `${!isDay ? convertMinutesToTime(option[optionLabel]) : days[option[optionLabel]].name} - ${!isDay ? convertMinutesToTime(option[optionLabel2]) : days[option[optionLabel2]].name}` : (optionLabel) ? convertMinutesToTime(option[optionLabel]) : option.name}
                   </div>
                 )) : <div className="text-center text-black py-4">No Record</div>}
               </div>

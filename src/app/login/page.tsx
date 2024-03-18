@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { IGenericReponse, ISignupCredential, IToaster } from "@/types";
+import { IGenericReponse, ILoginCredential, ISignupCredential, IToaster } from "@/types";
 import InputField from "@/components/common/InputField";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
@@ -9,23 +9,42 @@ import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/common/Toaster";
 const Login = () => {
   const router = useRouter()
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false);
-  const [loginCreds, setLoginCreds] = useState<Partial<ISignupCredential>>({
+  const [loginCreds, setLoginCreds] = useState<ILoginCredential>({
     email: "",
     password: "",
   });
+  const [validation, setValidation] = useState({
+    email: '',
+    password: '',
+  });
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value
     setLoginCreds((oldValue) => ({
       ...oldValue,
-      email: event.target.value,
+      email: newValue,
     }));
+    if (!newValue) {
+      setValidation((oldVal) => ({ ...oldVal, email: 'Email cannot be empty' }));
+    }else if(!emailRegex.test(newValue)){
+      setValidation((oldVal) => ({ ...oldVal, email: 'Email is Invalid' }))
+    }else {
+      setValidation((oldVal) => ({ ...oldVal, email: '' }));
+    }
   };
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value
     setLoginCreds((oldValue) => ({
       ...oldValue,
-      password: event.target.value,
+      password: newValue,
     }));
+    if (!newValue) {
+      setValidation((oldVal) => ({ ...oldVal, password: 'Password cannot be empty' }));
+    } else {
+      setValidation((oldVal) => ({ ...oldVal, password: '' }));
+    }
   };
   const handleLogin = async () => {
     try {
@@ -57,7 +76,7 @@ const Login = () => {
               <span>Login Page</span>
             </div>
             <div className="flex flex-col gap-2 mb-6">
-              <div className="mb-3">
+              <div>
                 <label
                   htmlFor="email"
                   className="block mb-2 text-sm font-medium dark:text-white text-black"
@@ -68,6 +87,7 @@ const Login = () => {
                   label="Email"
                   type="email"
                   id="email"
+                  error={validation.email}
                   value={loginCreds.email}
                   onChange={handleChangeEmail}
                 />
@@ -83,6 +103,7 @@ const Login = () => {
                   label="Password"
                   type="password"
                   id="password"
+                  error={validation.password}
                   value={loginCreds.password}
                   onChange={handleChangePassword}
                 />
@@ -99,7 +120,7 @@ const Login = () => {
             </div>
             {
               error &&
-              <div className="bg-white bg-opacity-50 text-xs text-black text-center mb-1 p-1">
+              <div className="bg-white text-red-900 bg-opacity-50 text-xs text-center mb-1 p-1">
                 {error}
               </div>
             }
