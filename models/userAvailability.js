@@ -23,6 +23,7 @@ const createUserAvailabilityModel = (sequelize, DataTypes) => {
         available_day_end: DataTypes.INTEGER,
         available_time_start: DataTypes.INTEGER,
         available_time_end: DataTypes.INTEGER,
+        max_meetings: DataTypes.INTEGER,
         buffer_time: DataTypes.INTEGER,
     }, {
         sequelize,

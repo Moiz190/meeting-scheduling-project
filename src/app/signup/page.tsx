@@ -112,7 +112,7 @@ const Signup = () => {
                 data: signupPayload
             })
             if (response.type === 'Success') {
-                router.push('/meeting')
+                router.push('/availability')
             }
         } catch (e) {
             setError(e as string)
@@ -212,7 +212,7 @@ const Signup = () => {
                                 label="Signup"
                                 onClick={handleSignup}
                                 loading={isLoading}
-                                disabled={Object.values(signupCreds).some(value => !value)}
+                                disabled={!Object.values(signupCreds).some(value => !value)}
                             />
                         </div>
                         {

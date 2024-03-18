@@ -45,6 +45,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      max_meetings: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       }
     });
   },

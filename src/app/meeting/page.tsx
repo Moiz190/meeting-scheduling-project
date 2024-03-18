@@ -96,7 +96,7 @@ const Meeting = () => {
             </div>
             <div className="font-semibold text-center text-white text-3xl"><span>Schedule a Meeting</span></div>
             <div className="flex gap-10 h-[400px] max-w-[900px] w-full justify-center">
-                <div className='p-3 min-w-[305px] max-w-[400px] w-full bg-[#5c7481ab] rounded-lg'>
+                <div className='p-3 min-w-[305px] max-w-[400px] w-full bg-[#ced9dfab] rounded-lg'>
                     <div className='mb-2'>
                         <div className="text-lg mb-1">
                             <span>
@@ -125,7 +125,7 @@ const Meeting = () => {
                     </div>
 
                 </div>
-                <div className='min-w-[305px] max-w-[400px] w-full bg-[#5c7481ab] rounded-lg p-3'>
+                <div className='min-w-[305px] max-w-[400px] w-full bg-[#ced9dfab] rounded-lg p-3'>
                     <div className="text-lg text-center mb-1">
                         <span>Scheduled Meetings</span>
                     </div>

@@ -17,8 +17,8 @@ const TimeRangePicker: React.FC<ITimeRangePicker> = ({
 }) => {
 
     return (
-        <div className="flex items-center space-x-4">
-            <div className="relative">
+        <div className="flex items-center justify-between">
+            <div className="relative w-[45%]">
                 <input
                     id={id}
                     type="time"
@@ -30,7 +30,7 @@ const TimeRangePicker: React.FC<ITimeRangePicker> = ({
             </div>
             {!isSingle &&
                 (<><span className="text-white">to</span>
-                    <div className="relative">
+                    <div className="relative w-[45%]">
                         <input
                             type="time"
                             value={endTime}

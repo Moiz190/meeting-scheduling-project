@@ -94,7 +94,7 @@ export default function CustomSelect({
               ? label
               : selectedItems.map((item, index) => (
                 <div key={item} className={`flex items-center text-ellipsis whitespace-nowrap overflow-hidden w-36 ${optionsWidth}`}>
-                  {(optionLabel && optionLabel2) ? `${!isDay ? convertMinutesToTime(item[optionLabel]) : days[item[optionLabel]]?.name} - ${!isDay ? convertMinutesToTime(item[optionLabel2]) : days[item[optionLabel]]?.name}` : optionLabel ? item[optionLabel] : item.name}
+                  {(optionLabel && optionLabel2) ? `${!isDay ? convertMinutesToTime(item[optionLabel]) : days[item[optionLabel]]?.name} - ${!isDay ? convertMinutesToTime(item[optionLabel2]) : days[item[optionLabel2]]?.name}` : optionLabel ? item[optionLabel] : item.name}
                   <span
                     className="text-red-600 cursor-pointer ml-1"
                     onClick={(e) => {

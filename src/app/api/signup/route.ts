@@ -26,7 +26,7 @@ export async function POST(request: Request, response: NextApiResponse) {
             available_time_end: payload.timeAvailabilityEnd,
             available_time_start: payload.timeAvailabilityStart,
         }
-        await UserAvailability.create(userAvailabilityPayload)
+        // await UserAvailability.create(userAvailabilityPayload)
         cookies().set('token',response.dataValues.id.toString())
         return NextResponse.json({
             type: 'Success',
