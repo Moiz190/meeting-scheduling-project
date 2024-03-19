@@ -3,23 +3,32 @@ import React, { useEffect, useState } from "react";
 import MultiSelect from "@/components/common/MultiSelect";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
-import { IGenericReponse, IUser, IUserAvailability } from "@/types";
-import { IMeetings } from "@/types/meeting";
+import { IGenericReponse, IToaster, IUser, IUserAvailability } from "@/types";
+import { IMeetingPayload, IMeetingRecords } from "@/types/meeting";
 import { useRouter } from "next/navigation";
 import { getCookies } from "cookies-next";
+import { Toaster } from "@/components/common/Toaster";
 const Meeting = () => {
   const router = useRouter();
   const loginToken = getCookies() as { token: string };
   const [userRecords, setUserRecords] = useState<IUser[]>([]);
   const [dateRecords, setDateRecords] = useState<IUserAvailability[]>([]);
-  const [scheduledMeetings, setScheduledMeetings] = useState<IMeetings[]>([]);
-  const [newMeeting, setNewMeeting] = useState<IMeetings>({
-    user: null,
+  const [scheduledMeetings, setScheduledMeetings] = useState<IMeetingRecords[]>([]);
+  const [toaster, setToaster] = useState<IToaster>({
+    message: "",
+    isVisible: false,
+    type: "positive",
+  });
+  const [newMeeting, setNewMeeting] = useState<IMeetingPayload>({
+    source_user: parseInt(loginToken.token),
+    target_user: null,
     startTime: 0,
-    endTime: "",
+    endTime: 0,
     day: 0,
   });
   const [isFetchingUserRecords, setIsFetchingUserRecords] = useState(false);
+  const [isFetchingUserMeetings, setIsFetchingUserMeetings] = useState(false);
+  const [isAddingMeeting, setIsAddingMeeting] = useState(false);
   const [isFetchingDateRecords, setIsFetchingDateRecords] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fetchUserRecords = async () => {
@@ -40,6 +49,21 @@ const Meeting = () => {
     }
     setIsFetchingUserRecords(false);
   };
+  const fetchUserMeetings = async () => {
+    try {
+      setIsFetchingUserMeetings(true);
+      const response = await makeApiCall<IGenericReponse<IMeetingRecords[]>>({
+        endpoint: `user/${loginToken.token}/meeting`,
+        method: "GET",
+      });
+      if (response.type === "Success") {
+        setScheduledMeetings(response.data)
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setIsFetchingUserMeetings(false);
+  };
   const getUserAvailableDate = async (id: number) => {
     try {
       setIsFetchingDateRecords(true);
@@ -55,22 +79,48 @@ const Meeting = () => {
     }
     setIsFetchingDateRecords(false);
   };
+  const addNewMeetings = async () => {
+    setIsAddingMeeting(true)
+    try {
+      console.log('okay')
+      const res = await makeApiCall<IGenericReponse<null>>({
+        endpoint: `user/${loginToken.token}/meeting`,
+        method: "POST",
+        data: newMeeting,
+      });
+      if (res.type === "Success") {
+        setToaster({
+          message: "Availability is added Successfully",
+          isVisible: true,
+          type: "positive",
+        });
+      }
+    } catch (e) {
+      setToaster({ message: e as string, isVisible: true, type: "negative" });
+    }
+    setIsAddingMeeting(false)
+    setTimeout(() => {
+      setToaster({ message: "", isVisible: false, type: "positive" });
+    }, 3000);
+  }
   useEffect(() => {
     fetchUserRecords();
+    fetchUserMeetings()
   }, []);
   useEffect(() => {
-    if (newMeeting.user) {
-      getUserAvailableDate(newMeeting.user);
+    if (newMeeting.target_user) {
+      getUserAvailableDate(newMeeting.target_user);
     }
-  }, [newMeeting.user]);
+  }, [newMeeting.target_user]);
 
   const handleSelectMeetingUser = (event: IUser[]) => {
     setNewMeeting((oldValue) => ({
       ...oldValue,
-      user: event[0].id,
+      target_user: event[0].id,
     }));
   };
   const handleSelectMeetingDate = (event: IUser[]) => {
+    console.log(event)
     setNewMeeting((oldValue) => ({
       ...oldValue,
       day: event[0].dayAvailabilityStart,
@@ -118,7 +168,7 @@ const Meeting = () => {
           loading={isLoading}
         />
       </div>
-      <div className="font-semibold text-center text-white text-3xl">
+      <div onClick={()=>console.log(newMeeting)} className="font-semibold text-center text-white text-3xl">
         <span>Schedule a Meeting</span>
       </div>
       <div className="flex gap-10 h-[400px] max-w-[900px] w-full justify-center">
@@ -179,16 +229,16 @@ const Meeting = () => {
           ) : (
             scheduledMeetings.map((meeting) => (
               <div
-                key={meeting.user}
+                key={meeting.id}
                 className="flex flex-col gap-2 max-h-[340px] h-full overflow-auto px-1"
               >
                 <div className="flex text-sm items-center justify-between bg-white text-black py-1 px-2 rounded-md">
                   <div className="p-1">
-                    <span>{meeting.user}</span>
+                    <span>{meeting.id}</span>
                   </div>
                   <div>
                     <span>
-                      {meeting.startTime} - {meeting.endTime}
+                      {meeting.meeting_start} - {meeting.meeting_end}
                     </span>
                   </div>
                   <Button label="Cancel" className="p-0.5 w-16 text-xs" />
@@ -200,9 +250,15 @@ const Meeting = () => {
       </div>
       <Button
         label="Schedule"
+        loading={isAddingMeeting}
         variant="secondary"
+        disabled={Object.values(newMeeting).some(value=> value === 0 || value  === null)}
         className="border-2 border-transparent"
+        onClick={addNewMeetings}
       />
+      {toaster.isVisible && (
+        <Toaster message={toaster.message} type={toaster.type} />
+      )}
     </div>
   );
 };

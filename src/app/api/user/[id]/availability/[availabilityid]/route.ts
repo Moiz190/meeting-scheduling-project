@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string; availabilityId: string } }
+  { params }: { params: { id: string; availabilityid: string } }
 ) {
   try {
-    const { id, availabilityId } = params;
+    const { id, availabilityid } = params;
     if (!id) {
       NextResponse.json(
         {
@@ -15,7 +15,7 @@ export async function DELETE(
         { status: 400 }
       );
     }
-    if (!availabilityId) {
+    if (!availabilityid) {
       NextResponse.json(
         {
           message: "availability Id is required",
@@ -24,7 +24,7 @@ export async function DELETE(
       );
     }
     const availability = await UserAvailability.findOne({
-      where: { user_id: id, id: availabilityId },
+      where: { user_id: id, id: availabilityid },
     });
     if (!availability) {
       NextResponse.json(
@@ -35,7 +35,7 @@ export async function DELETE(
       );
     }
     await UserAvailability.destroy({
-        where: { user_id: id, id: availabilityId },
+        where: { user_id: id, id: availabilityid },
       });
   
       return NextResponse.json({

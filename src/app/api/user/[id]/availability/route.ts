@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Users } from "@/models/user"
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextApiResponse } from "next"
 import { UserAvailability } from '@/models/userAvailability';
 
 interface IUserAvailability {
@@ -37,7 +36,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function POST(req: Request, res: NextApiResponse) {
     try {
         const response = await req.json() as IUserAvailability
-        console.log(response.max_meetings ===0,response.max_meetings)
         if (!response.user_id) {
             return NextResponse.json({
                 message: 'user_id is required',
@@ -64,12 +62,10 @@ export async function POST(req: Request, res: NextApiResponse) {
             available_day_end: response.available_day_end.id,
         }
         await UserAvailability.create(payload)
-        const data = await UserAvailability.findAll()
         return NextResponse.json({
             message: 'Availability Added',
             code: 200,
             type: "Success",
-            data
         })
     } catch (e) {
         return NextResponse.json({

@@ -22,6 +22,7 @@ import Loader from "@/components/common/Loader";
 const Availability = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [cancelingRecord, setCancelingRecord] = useState<null | number>(null);
   const [isFetchingDateRecords, setIsFetchingDateRecords] = useState(false);
   const [availabilityRecords, setAvailabilityRecords] = useState<
     IUserAvailabilityResponse[]
@@ -190,6 +191,7 @@ const Availability = () => {
           isVisible: true,
           type: "positive",
         });
+        getUserAvailableDate()
       }
     } catch (e) {
       setToaster({ message: e as string, isVisible: true, type: "negative" });
@@ -201,27 +203,29 @@ const Availability = () => {
   };
   const handleCancelAvailability = async (selectedId: number) => {
     try {
-      const res = await makeApiCall<IGenericReponse<null>>({
-        endpoint: `user/${loginUserId}/availability/${selectedId}`,
-        method: "DELETE",
-      });
-      if (res.type === "Success") {
-        const selectedAvailabilityIndex = availabilityRecords.findIndex(
-          (record) => record.id === selectedId
-        );
-        availabilityRecords.splice(selectedAvailabilityIndex, 1);
-        setToaster({
-          message: "Availability deleted successfully",
-          isVisible: true,
-          type: "positive",
+        setCancelingRecord(selectedId)
+        const res = await makeApiCall<IGenericReponse<null>>({
+            endpoint: `user/${loginUserId}/availability/${selectedId}`,
+            method: "DELETE",
         });
-      }
-    } catch (e) {
-      setToaster({ message: e as string, isVisible: true, type: "negative" });
-    }
-    setTimeout(() => {
-      setToaster({ message: "", isVisible: false, type: "positive" });
-    }, 3000);
+        if (res.type === "Success") {
+            const selectedAvailabilityIndex = availabilityRecords.findIndex(
+                (record) => record.id === selectedId
+                );
+                availabilityRecords.splice(selectedAvailabilityIndex, 1);
+                setToaster({
+                    message: "Availability deleted successfully",
+                    isVisible: true,
+                    type: "positive",
+                });
+            }
+        } catch (e) {
+            setToaster({ message: e as string, isVisible: true, type: "negative" });
+        }
+        setTimeout(() => {
+            setToaster({ message: "", isVisible: false, type: "positive" });
+        }, 3000);
+        setCancelingRecord(null)
   };
   const handleGoToMeetingPage = () => {
     router.push("/meeting");
@@ -370,6 +374,7 @@ const Availability = () => {
                   <Button
                     label="Cancel"
                     className="p-0.5 w-16 text-xs"
+                    loading={record.id === cancelingRecord}
                     onClick={() => handleCancelAvailability(record.id)}
                   />
                 </div>

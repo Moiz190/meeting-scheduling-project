@@ -16,18 +16,18 @@ export async function POST(request: Request, response: NextApiResponse) {
             return NextResponse.json({ message: `The following keys are empty: ${emptyKeys}` }, { status: 400 })
         }
         const userPayload = { name: payload.name, email: payload.email, password: payload.password }
-        const response = await Users.create(userPayload)
-
-        const userAvailabilityPayload: Omit<IUserAvailability, "createdAt" | "updatedAt"> = {
-            user_id: response.dataValues.id,
-            available_day_start: payload.dayAvailabilityStart.id,
-            available_day_end: payload.dayAvailabilityEnd.id,
-            buffer_time: payload.bufferTime,
-            available_time_end: payload.timeAvailabilityEnd,
-            available_time_start: payload.timeAvailabilityStart,
+        const emailExisted = await Users.findOne({
+            where: {
+                email: payload.email
+            }
+        })
+        if (emailExisted) {
+            return NextResponse.json({
+                message: "email already existed",
+            }, { status: 400 })
         }
-        // await UserAvailability.create(userAvailabilityPayload)
-        cookies().set('token',response.dataValues.id.toString())
+        const response = await Users.create(userPayload)
+        cookies().set('token', response.dataValues.id.toString())
         return NextResponse.json({
             type: 'Success',
             message: "User Signed up successfully",

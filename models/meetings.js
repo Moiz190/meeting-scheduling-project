@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 import {
   Model
 } from 'sequelize';
 const createMeetingsModel = (sequelize, DataTypes) => {
   /**
- * @extends {Model<import('../src/types/meeting').IMeetings, any>}
- * @implements {import('../src/types/meeting').IMeetings}
+ * @extends {Model<import('../src/types/meeting').IMeetingRecords, any>}
+ * @implements {import('../src/types/meeting').IMeetingRecords}
  */
   class meetings extends Model {
     /**
@@ -18,8 +18,15 @@ const createMeetingsModel = (sequelize, DataTypes) => {
     }
   }
   meetings.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+  },
     meeting_start: DataTypes.STRING,
-    meeting_end: DataTypes.STRING
+    meeting_end: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'meetings',

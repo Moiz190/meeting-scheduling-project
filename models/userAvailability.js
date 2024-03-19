@@ -18,7 +18,11 @@ const createUserAvailabilityModel = (sequelize, DataTypes) => {
         }
     }
     UserAvailability.init({
-        id:DataTypes.INTEGER,
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
         user_id: DataTypes.INTEGER,
         available_day_start: DataTypes.INTEGER,
         available_day_end: DataTypes.INTEGER,
@@ -29,7 +33,7 @@ const createUserAvailabilityModel = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'user_availability',
-        tableName:'user_availability',
+        tableName: 'user_availability',
     });
 
     return UserAvailability;
