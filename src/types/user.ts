@@ -31,6 +31,7 @@ export interface IUserAvailabilityResponse {
     buffer_time: number;
     createdAt: string;
     updatedAt: string;
+    name?:string
 }
 export interface IUserMeeting{
     id:number,

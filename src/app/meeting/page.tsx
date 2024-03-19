@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import MultiSelect from "@/components/common/MultiSelect";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
-import { IGenericReponse, IUser, IUserAvailability } from "@/types";
+import { IGenericReponse, IUser, IUserAvailability, IUserAvailabilityResponse } from "@/types";
 import { IMeetings } from "@/types/meeting";
 import { useRouter } from "next/navigation";
 import { getCookies } from "cookies-next";
@@ -11,7 +11,7 @@ const Meeting = () => {
   const router = useRouter();
   const loginToken = getCookies() as { token: string };
   const [userRecords, setUserRecords] = useState<IUser[]>([]);
-  const [dateRecords, setDateRecords] = useState<IUserAvailability[]>([]);
+  const [dateRecords, setDateRecords] = useState<IUserAvailabilityResponse[]>([]);
   const [scheduledMeetings, setScheduledMeetings] = useState<IMeetings[]>([]);
   const [newMeeting, setNewMeeting] = useState<IMeetings>({
     user: null,
@@ -43,7 +43,7 @@ const Meeting = () => {
   const getUserAvailableDate = async (id: number) => {
     try {
       setIsFetchingDateRecords(true);
-      const response = await makeApiCall<IGenericReponse<IUserAvailability[]>>({
+      const response = await makeApiCall<IGenericReponse<IUserAvailabilityResponse[]>>({
         endpoint: `user/${id}/availability`,
         method: "GET",
       });

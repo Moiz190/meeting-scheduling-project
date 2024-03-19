@@ -2,14 +2,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { IGenericReponse, ISignupCredential, IToaster } from "@/types";
-// import TimeRangePicker from "@/components/common/TimeRangePicker";
+
 import InputField from "@/components/common/InputField";
 import Button from "@/components/common/Button";
 import { makeApiCall } from "@/utils/makeApiCall";
-import { Toaster } from "@/components/common/Toaster";
 import { useRouter } from "next/navigation";
-// import MultiSelect from "@/components/common/MultiSelect";
-// import { days } from "./utils";
+
 import { convertTimeToMinutes } from "@/utils/convertTimeToMinutes";
 const Signup = () => {
   const router = useRouter();
@@ -21,11 +19,7 @@ const Signup = () => {
     name: "",
     password: "",
   });
-  // const [toaster, setToaster] = useState<IToaster>({
-  //   message: "",
-  //   isVisible: false,
-  //   type: "positive",
-  // });
+
   const [signupCreds, setSignupCreds] = useState<ISignupCredential>({
     name: "",
     password: "",
@@ -85,46 +79,7 @@ const Signup = () => {
       setValidation((oldVal) => ({ ...oldVal, password: "" }));
     }
   };
-  // const handleEndDayChange = (event: string[]) => {
-  //   setSignupCreds((oldValue) => ({
-  //     ...oldValue,
-  //     dayAvailabilityEnd: event[0],
-  //   }));
-  // };
-  // const handleStartDayChange = (event: string[]) => {
-  //   setSignupCreds((oldValue) => ({
-  //     ...oldValue,
-  //     dayAvailabilityStart: event[0],
-  //   }));
-  // };
-  // const handleStartTimeChange = (
-  //   event: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   setSignupCreds((oldValue) => ({
-  //     ...oldValue,
-  //     timeAvailabilityStart: event.target.value,
-  //   }));
-  // };
-  // const handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setSignupCreds((oldValue) => ({
-  //     ...oldValue,
-  //     timeAvailabilityEnd: event.target.value,
-  //   }));
-  // };
-  // const handleBufferTime = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const newValue = Number(event.target.value);
-  //   if (newValue > 0) {
-  //     setSignupCreds((oldValue) => ({
-  //       ...oldValue,
-  //       bufferTime: newValue,
-  //     }));
-  //   } else if (!newValue || newValue <= 0) {
-  //     setSignupCreds((oldValue) => ({
-  //       ...oldValue,
-  //       bufferTime: 0,
-  //     }));
-  //   }
-  // };
+
   const handleSignup = async () => {
     try {
       const startTime = convertTimeToMinutes(signupCreds.timeAvailabilityStart);
@@ -214,62 +169,6 @@ const Signup = () => {
                   onChange={handleChangePassword}
                 />
               </div>
-              {/* <div>
-                <label
-                  htmlFor="availableTime"
-                  className="block mb-2 text-sm font-medium dark:text-white text-black"
-                >
-                  Select Your Weekly Availability
-                </label>
-                <div className="flex items-center space-x-4">
-                  <MultiSelect
-                    className="w-full max-w-[130px]"
-                    optionsWidth="w-20"
-                    label="From"
-                    singleSelect={true}
-                    options={days}
-                    onChange={handleStartDayChange}
-                  />
-                  <span>to</span>
-                  <MultiSelect
-                    className="w-full max-w-[130px]"
-                    optionsWidth="w-20"
-                    label="To"
-                    singleSelect={true}
-                    options={days}
-                    onChange={handleEndDayChange}
-                  />
-                </div>
-              </div> */}
-              {/* <div>
-                <label
-                  htmlFor="availableTime"
-                  className="block mb-2 text-sm font-medium dark:text-white text-black"
-                >
-                  Select Your Time Availability
-                </label>
-                <TimeRangePicker
-                  id={"availableTime"}
-                  startTime={signupCreds.timeAvailabilityStart}
-                  onStartTimeChange={handleStartTimeChange}
-                  onEndTimeChange={handleEndTimeChange}
-                  endTime={signupCreds.timeAvailabilityEnd}
-                />
-              </div> */}
-              {/* <div>
-                <label
-                  htmlFor="availableTime"
-                  className="block mb-2 text-sm font-medium dark:text-white text-black"
-                >
-                  Select Your Buffer Time(mins)
-                </label>
-                <InputField
-                  id={"bufferTime"}
-                  type="number"
-                  value={signupCreds.bufferTime}
-                  onChange={handleBufferTime}
-                />
-              </div> */}
             </div>
             <div className="text-center mb-2">
               <Button
@@ -295,9 +194,6 @@ const Signup = () => {
           </div>
         </div>
       </div>
-      {/* {toaster.isVisible && (
-        <Toaster message={toaster.message} type={toaster.type} />
-      )} */}
     </div>
   );
 };
