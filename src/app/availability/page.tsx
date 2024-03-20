@@ -151,12 +151,19 @@ const Availability = () => {
       }
     } catch (e) {
       console.error(e);
+
+      setToaster({ message: e as string, isVisible: true, type: "negative" });
+      setTimeout(() => {
+        setToaster({ message: "", isVisible: false, type: "positive" });
+      }, 3000);
     }
     setIsFetchingDateRecords(false);
   };
   const handleAddAvailability = async () => {
+    
     try {
       setIsAdding(true);
+
       const {
         bufferTime,
         dayAvailabilityStart,
@@ -165,6 +172,7 @@ const Availability = () => {
         timeAvailabilityEnd,
         maximumMeetings,
       } = userAvailability;
+
       const payload = {
         user_id: loginUserId,
         buffer_time: bufferTime,
@@ -174,27 +182,64 @@ const Availability = () => {
         available_time_end: convertTimeToMinutes(timeAvailabilityEnd),
         max_meetings: maximumMeetings,
       };
-      const res = await makeApiCall<IGenericReponse<null>>({
-        endpoint: `user/${payload.user_id}/availability`,
-        method: "POST",
-        data: payload,
+
+      const newStartDay = dayAvailabilityStart?.id;
+      const newEndDay = dayAvailabilityEnd?.id;
+      const newStartTime = convertTimeToMinutes(timeAvailabilityStart);
+      const newEndTime = convertTimeToMinutes(timeAvailabilityEnd);
+
+      const conflictExists = availabilityRecords.some((record) => {
+        const existingStartDay = record.available_day_start;
+        const existingEndDay = record.available_day_end;
+        const existingStartTime = Number(record.available_time_start);
+        const existingEndTime = Number(record.available_time_end);
+
+        const daysConflict =
+          (newStartDay >= existingStartDay && newStartDay <= existingEndDay) ||
+          (newEndDay >= existingStartDay && newEndDay <= existingEndDay) ||
+          (existingStartDay >= newStartDay && existingEndDay <= newEndDay);
+
+        const timeConflict =
+          (newStartTime >= existingStartTime &&
+            newStartTime < existingEndTime) ||
+          (newEndTime > existingStartTime && newEndTime <= existingEndTime) ||
+          (existingStartTime >= newStartTime && existingEndTime <= newEndTime);
+
+        return daysConflict && timeConflict;
       });
-      if (res.type === "Success") {
+
+      if (conflictExists) {
         setToaster({
-          message: "Availability is added Successfully",
+          message: "New availability conflicts with existing records.",
           isVisible: true,
-          type: "positive",
+          type: "negative",
         });
+      } else {
+        const res = await makeApiCall<IGenericReponse<null>>({
+          endpoint: `user/${payload.user_id}/availability`,
+          method: "POST",
+          data: payload,
+        });
+
+        if (res.type === "Success") {
+          setToaster({
+            message: "Availability added successfully.",
+            isVisible: true,
+            type: "positive",
+          });
+        }
         getUserAvailableDate()
       }
     } catch (e) {
       setToaster({ message: e as string, isVisible: true, type: "negative" });
     }
+
     setTimeout(() => {
       setToaster({ message: "", isVisible: false, type: "positive" });
     }, 3000);
     setIsAdding(false);
   };
+
   const handleCancelAvailability = async (selectedId: number) => {
     try {
         setCancelingRecord(selectedId)
@@ -224,6 +269,7 @@ const Availability = () => {
   const handleGoToMeetingPage = () => {
     router.push("/meeting");
   };
+
   return (
     <div className="h-screen p-2 min-w-[300px] flex flex-col items-center justify-center bg-black gap-10">
       <div className="w-full flex justify-between">
