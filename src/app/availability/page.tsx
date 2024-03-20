@@ -2,9 +2,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Button from "@/components/common/Button";
 import {
+  IDays,
   IGenericReponse,
   IToaster,
-  IUserAvailability,
   IUserAvailabilityResponse,
 } from "@/types";
 import { makeApiCall } from "@/utils/makeApiCall";
@@ -34,8 +34,8 @@ const Availability = () => {
   });
   const [userAvailability, setUserAvailability] = useState({
     bufferTime: 0,
-    dayAvailabilityStart: "",
-    dayAvailabilityEnd: "",
+    dayAvailabilityStart: null,
+    dayAvailabilityEnd: null,
     timeAvailabilityStart: "00:00",
     timeAvailabilityEnd: "00:00",
     maximumMeetings: 0,
@@ -90,16 +90,10 @@ const Availability = () => {
     userAvailability.timeAvailabilityEnd,
     userAvailability.bufferTime,
   ]);
-  const handleStartDayChange = (event: string[]) => {
+  const handleDayChange = (event: IDays[],key:'dayAvailabilityEnd' | 'dayAvailabilityStart') => {
     setUserAvailability((oldValue) => ({
       ...oldValue,
-      dayAvailabilityStart: event[0],
-    }));
-  };
-  const handleEndDayChange = (event: string[]) => {
-    setUserAvailability((oldValue) => ({
-      ...oldValue,
-      dayAvailabilityEnd: event[0],
+      [key]: event[0].id,
     }));
   };
   const handleAvailableTimeChange = (
@@ -267,7 +261,7 @@ const Availability = () => {
                 label="From"
                 singleSelect={true}
                 options={days}
-                onChange={handleStartDayChange}
+                onChange={(e)=>handleDayChange(e,'dayAvailabilityStart')}
               />
               <span>to</span>
               <MultiSelect
@@ -276,7 +270,7 @@ const Availability = () => {
                 label="To"
                 singleSelect={true}
                 options={days}
-                onChange={handleEndDayChange}
+                onChange={(e)=>handleDayChange(e,'dayAvailabilityEnd')}
               />
             </div>
           </div>

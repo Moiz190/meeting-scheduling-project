@@ -1,11 +1,11 @@
 import { days } from "@/app/signup/utils";
-import { IUser, IUserAvailabilityResponse } from "@/types";
+import { IDays, IUser, IUserAvailabilityResponse } from "@/types";
 import { convertMinutesToTime } from "@/utils/convertMinutesToTime";
 import { useState, useEffect, useRef } from "react";
 
 interface CustomSelectProps {
   label: string;
-  options: (IUser | IUserAvailabilityResponse | { name: string; id: number })[];
+  options: (IUser | IUserAvailabilityResponse | IDays)[];
   isDay?: boolean;
   optionLabel?: string;
   optionLabel2?: string;
@@ -40,10 +40,6 @@ export default function CustomSelect({
   function updateSelectedItems(params: any[]) {
     setSelectedItems(params);
     onChange(params);
-    console.log(
-      "params",
-      params.map((item) => item.name)
-    );
   }
   // useEffect(() => {
   //   setSelectedItems([...selectedValues]);
@@ -52,7 +48,7 @@ export default function CustomSelect({
     setIsOpen(!isOpen);
   };
   const handleOptionClick = (
-    option: IUser | IUserAvailabilityResponse | { name: string; id: number }
+    option: IUser | IUserAvailabilityResponse | IDays
   ) => {
     if (singleSelect) {
       updateSelectedItems([option]);
@@ -210,7 +206,7 @@ export default function CustomSelect({
               aria-labelledby="options-menu"
             >
               {options.length ? (
-                options.map((option) => (
+                options.map((option :any) => (
                   <div
                     key={option.id}
                     onClick={() => handleOptionClick(option)}
@@ -221,15 +217,7 @@ export default function CustomSelect({
                     } text-white dark:text-black  cursor-pointer select-none relative px-4 py-2 z-[50]`}
                     role="menuitem"
                   >
-                    {optionLabel && optionLabel2 && !isDay
-                      ? `${convertMinutesToTime(
-                          option[optionLabel]
-                        )} - ${convertMinutesToTime(option[optionLabel2])}`
-                      : optionLabel && !isDay
-                      ? days && days[option[optionLabel]]?.name
-                      : optionLabel
-                      ? convertMinutesToTime(option[optionLabel])
-                      : option.name}
+                     {(optionLabel && optionLabel2) ? `${!isDay ? convertMinutesToTime(option[optionLabel]) : days[option[optionLabel]].name} - ${!isDay ? convertMinutesToTime(option[optionLabel2]) : days[option[optionLabel2]].name}` : (optionLabel) ? convertMinutesToTime(option[optionLabel]) : option.name}
                   </div>
                 ))
               ) : (

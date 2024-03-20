@@ -1,38 +1,31 @@
-"use strict";
-import {
-  Model
-} from 'sequelize';
+import { Model } from 'sequelize';
+
 const createMeetingsModel = (sequelize, DataTypes) => {
   /**
  * @extends {Model<import('../src/types/meeting').IMeetingRecords, any>}
  * @implements {import('../src/types/meeting').IMeetingRecords}
  */
-  class meetings extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class Meetings extends Model {
     static associate(models) {
-      // define association here
+      Meetings.hasMany(models.UserMeetingRelationship, { foreignKey: 'meeting_id' });
     }
   }
-  meetings.init({
+
+  Meetings.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
-  },
-    meeting_start: DataTypes.STRING,
-    meeting_end: DataTypes.STRING,
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    },
+    meeting_start: DataTypes.INTEGER,
+    meeting_end: DataTypes.INTEGER,
+    meeting_day: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'meetings',
   });
 
-  return meetings;
-
+  return Meetings;
 };
-export default createMeetingsModel
+
+export default createMeetingsModel;

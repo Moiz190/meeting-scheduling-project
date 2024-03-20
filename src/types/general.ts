@@ -8,3 +8,7 @@ export interface IToaster{
     type:'positive' | 'negative',
     isVisible:boolean
 }
+export interface IDays{
+    name:string,
+    id:number
+}
