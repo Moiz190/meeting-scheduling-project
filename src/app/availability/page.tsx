@@ -90,7 +90,7 @@ const Availability = () => {
     userAvailability.timeAvailabilityEnd,
     userAvailability.bufferTime,
   ]);
-  const handleDayChange = (event: IDays[],key:'dayAvailabilityEnd' | 'dayAvailabilityStart') => {
+  const handleDayChange = (event: IDays[], key: 'dayAvailabilityEnd' | 'dayAvailabilityStart') => {
     setUserAvailability((oldValue) => ({
       ...oldValue,
       [key]: event[0].id,
@@ -160,7 +160,7 @@ const Availability = () => {
     setIsFetchingDateRecords(false);
   };
   const handleAddAvailability = async () => {
-    
+
     try {
       setIsAdding(true);
 
@@ -182,9 +182,8 @@ const Availability = () => {
         available_time_end: convertTimeToMinutes(timeAvailabilityEnd),
         max_meetings: maximumMeetings,
       };
-
-      const newStartDay = dayAvailabilityStart?.id;
-      const newEndDay = dayAvailabilityEnd?.id;
+      const newStartDay = dayAvailabilityStart;
+      const newEndDay = dayAvailabilityEnd;
       const newStartTime = convertTimeToMinutes(timeAvailabilityStart);
       const newEndTime = convertTimeToMinutes(timeAvailabilityEnd);
 
@@ -195,9 +194,9 @@ const Availability = () => {
         const existingEndTime = Number(record.available_time_end);
 
         const daysConflict =
-          (newStartDay >= existingStartDay && newStartDay <= existingEndDay) ||
-          (newEndDay >= existingStartDay && newEndDay <= existingEndDay) ||
-          (existingStartDay >= newStartDay && existingEndDay <= newEndDay);
+          (newStartDay && (newStartDay >= existingStartDay && newStartDay <= existingEndDay)) ||
+          (newEndDay && (newEndDay >= existingStartDay && newEndDay <= existingEndDay)) ||
+          ((newStartDay && newEndDay) && (existingStartDay >= newStartDay && existingEndDay <= newEndDay));
 
         const timeConflict =
           (newStartTime >= existingStartTime &&
@@ -242,29 +241,29 @@ const Availability = () => {
 
   const handleCancelAvailability = async (selectedId: number) => {
     try {
-        setCancelingRecord(selectedId)
-        const res = await makeApiCall<IGenericReponse<null>>({
-            endpoint: `user/${loginUserId}/availability/${selectedId}`,
-            method: "DELETE",
+      setCancelingRecord(selectedId)
+      const res = await makeApiCall<IGenericReponse<null>>({
+        endpoint: `user/${loginUserId}/availability/${selectedId}`,
+        method: "DELETE",
+      });
+      if (res.type === "Success") {
+        const selectedAvailabilityIndex = availabilityRecords.findIndex(
+          (record) => record.id === selectedId
+        );
+        availabilityRecords.splice(selectedAvailabilityIndex, 1);
+        setToaster({
+          message: "Availability deleted successfully",
+          isVisible: true,
+          type: "positive",
         });
-        if (res.type === "Success") {
-            const selectedAvailabilityIndex = availabilityRecords.findIndex(
-                (record) => record.id === selectedId
-                );
-                availabilityRecords.splice(selectedAvailabilityIndex, 1);
-                setToaster({
-                    message: "Availability deleted successfully",
-                    isVisible: true,
-                    type: "positive",
-                });
-            }
-        } catch (e) {
-            setToaster({ message: e as string, isVisible: true, type: "negative" });
-        }
-        setTimeout(() => {
-            setToaster({ message: "", isVisible: false, type: "positive" });
-        }, 3000);
-        setCancelingRecord(null)
+      }
+    } catch (e) {
+      setToaster({ message: e as string, isVisible: true, type: "negative" });
+    }
+    setTimeout(() => {
+      setToaster({ message: "", isVisible: false, type: "positive" });
+    }, 3000);
+    setCancelingRecord(null)
   };
   const handleGoToMeetingPage = () => {
     router.push("/meeting");
@@ -291,8 +290,8 @@ const Availability = () => {
       <div className="font-semibold text-center text-white text-3xl">
         <span>Select your Availability</span>
       </div>
-      <div className="flex gap-10 min-h-[400px] max-w-[900px] w-full justify-center">
-        <div className="p-3 min-w-[305px] max-w-[400px] w-full bg-[#ced9dfab] rounded-lg">
+      <div className="flex gap-10 min-h-[400px] max-w-[1100px] w-full justify-center">
+        <div className="p-3 min-w-[305px] max-w-[520px] w-full bg-[#ced9dfab] rounded-lg">
           <div className="mb-2">
             <label
               htmlFor="availableTime"
@@ -307,7 +306,7 @@ const Availability = () => {
                 label="From"
                 singleSelect={true}
                 options={days}
-                onChange={(e)=>handleDayChange(e,'dayAvailabilityStart')}
+                onChange={(e) => handleDayChange(e, 'dayAvailabilityStart')}
               />
               <span>to</span>
               <MultiSelect
@@ -316,7 +315,7 @@ const Availability = () => {
                 label="To"
                 singleSelect={true}
                 options={days}
-                onChange={(e)=>handleDayChange(e,'dayAvailabilityEnd')}
+                onChange={(e) => handleDayChange(e, 'dayAvailabilityEnd')}
               />
             </div>
           </div>
@@ -379,7 +378,7 @@ const Availability = () => {
             </div>
           </div>
         </div>
-        <div className="min-w-[305px] max-w-[400px] h-full overflow-auto w-full bg-[#ced9dfab] rounded-lg p-3">
+        <div className="min-w-[305px] max-w-[520px] h-full overflow-auto w-full bg-[#ced9dfab] rounded-lg p-3">
           <div className="text-lg text-center mb-1">
             <span>Availability</span>
           </div>
