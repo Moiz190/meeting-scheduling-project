@@ -315,7 +315,7 @@ const Meeting = () => {
         label="Schedule"
         loading={isAddingMeeting}
         variant="secondary"
-        disabled={!isAvailableTimeValid || newMeeting.source_user === null || !newMeeting.day}
+        disabled={!isAvailableTimeValid || newMeeting.source_user === null || newMeeting.day === null}
         className="border-2 border-transparent"
         onClick={addNewMeetings}
       />
