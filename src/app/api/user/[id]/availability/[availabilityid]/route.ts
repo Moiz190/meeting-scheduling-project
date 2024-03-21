@@ -43,12 +43,9 @@ export async function DELETE(
         type: "Success",
         code: 200,
       });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        message: error,
-      },
-      { status: 500 }
-    );
+  } catch (e) {
+    return NextResponse.json({
+      message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
+  }, { status: 500 })
   }
 }

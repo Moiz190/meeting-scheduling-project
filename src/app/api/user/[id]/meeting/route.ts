@@ -50,9 +50,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
             type: 'Success',
             code: 200
         })
-    } catch (error) {
+    } catch (e) {
         return NextResponse.json({
-            message: error
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
         }, { status: 500 })
     }
 }
@@ -89,17 +89,17 @@ export async function POST(req: Request, res: NextApiResponse) {
                 message: 'startTime cannot be greater than endTime'
             }, { status: 400 })
         }
-        const isSourceUserAvailable = await UserAvailability.findOne({
+        const isSourceUserAvailable = await UserAvailability.findAll({
             where: {
                 user_id: payload.source_user
             }
         })
-        if (!isSourceUserAvailable) {
+        if (isSourceUserAvailable.length === 0) {
             return NextResponse.json({
                 message: 'Please Select your availability.',
             }, { status: 400 })
         }
-        if (isSourceUserAvailable && payload.day !== null && (!(payload.day >= isSourceUserAvailable?.dataValues.available_day_start && payload.day <= isSourceUserAvailable?.dataValues.available_day_end))) {
+        if (!(isSourceUserAvailable.some(data => payload.day! <= data.dataValues.available_day_end && payload.day! >= data.dataValues.available_day_start))) {
             return NextResponse.json({
                 message: `You are not available on ${days[payload.day].name}`,
             }, { status: 400 })
@@ -151,43 +151,20 @@ export async function POST(req: Request, res: NextApiResponse) {
                     message: 'Meeting limit exceeded',
                 }, { status: 400 })
             }
+            const newMeeting = {
+                meeting_start: payload.startTime,
+                meeting_end: payload.endTime,
+                meeting_day: payload.day
+            }
 
-
-
-
-            const meetingRecords = await UserMeeting.findAll({
-                where: {
-                    [Op.or]: [
-                        { source_user_id: payload.target_user },
-                        { target_user_id: payload.target_user }
-                    ]
-                }
-            });
-
-            // const userScheduledMeetings = await UserMeeting.findAll({
-            //     where: {
-            //         [Op.or]: [
-            //             { source_user_id: payload.target_user },
-            //             { target_user_id: payload.target_user }
-            //         ]
-            //     }
-            // });
-            // const userScheduledMeetingIds = userScheduledMeetings.map(meeting => meeting.dataValues.meeting_id)
-            // const selectedUserMeetings = meetingRecords.filter(records => userScheduledMeetingIds.includes(records.dataValues.id))
-            // const selectedUserScheduledMeetings = userScheduledMeetings.map(userMeeting => {
-            //     const meeting = selectedUserMeetings.find(scheduleduserMeeting => scheduleduserMeeting.dataValues.id === userMeeting.dataValues.meeting_id)
-            //     return { ...userMeeting.dataValues, meeting_day: meeting?.dataValues.meeting_day, meeting_start: meeting?.dataValues.meeting_start, meeting_end: meeting?.dataValues.meeting_end }
-            // })
-
-
-            //  console.log(meetingRecords,isTargetUserAvailable) 
-            // const res = checkMeetingAvailability(meetingRecords[0], isTargetUserAvailable)
-            // if (res) {
-            //     console.log('okay')
-            // } else {
-
-            //     console.log('!okay')
-            // }
+            const response =
+                await Meetings.create(newMeeting)
+            const userMeetingPayload = {
+                target_user_id: payload.target_user,
+                source_user_id: payload.source_user,
+                meeting_id: response.dataValues.id
+            }
+            await UserMeeting.create(userMeetingPayload)
             return NextResponse.json({
                 data: isTargetUserAvailable,
                 message: 'Meeting Added',
@@ -201,28 +178,7 @@ export async function POST(req: Request, res: NextApiResponse) {
             }, { status: 400 })
 
         }
-        // const newMeeting = {
-        //     meeting_start: payload.startTime,
-        //     meeting_end: payload.endTime,
-        //     meeting_day: payload.day
-        // }
-
-        // const response =
-        //     await Meetings.create(newMeeting)
-        // const userMeetingPayload = {
-        //     target_user_id: payload.target_user,
-        //     source_user_id: payload.source_user,
-        //     meeting_id: response.dataValues.id
-        // }
-        // await UserMeeting.create(userMeetingPayload)
-        return NextResponse.json({
-            data: isTargetUserAvailable,
-            message: 'Meeting Added',
-            code: 201,
-            type: "Success",
-        })
     } catch (e) {
-        console.log(e)
         return NextResponse.json({
             message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
         }, { status: 500 })
@@ -251,39 +207,9 @@ export async function DELETE(request: Request, response: NextApiResponse) {
             type: 'Success',
             code: 200
         })
-    } catch (error) {
+    } catch (e) {
         return NextResponse.json({
-            message: error
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
         }, { status: 500 })
     }
 }
-
-
-
-
-
-// function checkMeetingAvailability(meeting: any, availabilities: any) {
-//     // Meeting details
-//     const { meeting_day, meeting_start, meeting_end, target_user_id } = meeting;
-//     console.log(meeting)
-//     console.log(meeting_day, meeting_start, meeting_end, target_user_id)
-
-//     // Find availability for the target user
-//     const availability = availabilities.find((avail: any) => avail.user_id === target_user_id);
-
-//     if (!availability) {
-//         throw new Error("User availability not found");
-//     }
-
-//     // Check if meeting day is within available days
-//     if (meeting_day < availability.available_day_start || meeting_day > availability.available_day_end) {
-//         throw new Error("Meeting day is not within available days");
-//     }
-
-//     // Check if meeting time is within available time range
-//     if (meeting_start < parseInt(availability.available_time_start) || meeting_end > parseInt(availability.available_time_end)) {
-//         throw new Error("Meeting time is not within available time range");
-//     }
-
-//     return true;
-// }

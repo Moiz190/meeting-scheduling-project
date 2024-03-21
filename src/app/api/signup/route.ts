@@ -1,6 +1,5 @@
 import { Users } from '@/models/user';
-import { UserAvailability } from '@/models/userAvailability';
-import { ISignupPayload, IUserAvailability } from '@/types';
+import { ISignupPayload } from '@/types';
 import { NextApiResponse } from 'next';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -33,7 +32,9 @@ export async function POST(request: Request, response: NextApiResponse) {
             message: "User Signed up successfully",
             payload,
         })
-    } catch (error) {
-        console.log(error)
+    } catch (e) {
+        return NextResponse.json({
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
+        }, { status: 500 })
     }
 }

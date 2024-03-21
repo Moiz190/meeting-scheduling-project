@@ -99,8 +99,11 @@ const Meeting = () => {
         setUserRecords(filteredRecords);
       }
     } catch (e) {
-      console.error(e);
+      setToaster({ message: e as string, isVisible: true, type: 'negative' })
     }
+    setTimeout(() => {
+      setToaster({ message: '', isVisible: false, type: 'positive' })
+    }, 3000)
     setIsFetchingUserRecords(false);
   };
   const fetchUserMeetings = async () => {
@@ -114,9 +117,12 @@ const Meeting = () => {
         setScheduledMeetings(response.data)
       }
     } catch (e) {
-      console.error(e);
+      setToaster({ message: e as string, type: 'negative', isVisible: true })
     }
     setIsFetchingUserMeetings(false);
+    setTimeout(() => {
+      setToaster({ message: '', type: 'positive', isVisible: false })
+    }, 3000)
   };
   const getUserAvailableDate = async (id: number) => {
     try {
@@ -133,25 +139,42 @@ const Meeting = () => {
         setAvailableDays(userAvailableDays)
       }
     } catch (e) {
-      console.error(e);
+      setToaster({ message: e as string, type: 'negative', isVisible: true })
     }
+    setTimeout(() => {
+      setToaster({ message: '', type: 'positive', isVisible: false })
+    }, 3000)
     setIsFetchingDateRecords(false);
   };
   const addNewMeetings = async () => {
     setIsAddingMeeting(true)
     try {
-      const res = await makeApiCall<IGenericReponse<null>>({
-        endpoint: `user/${loginToken.token}/meeting`,
-        method: "POST",
-        data: { ...newMeeting, startTime: convertTimeToMinutes(meetingTime.meetingTimeStart), endTime: convertTimeToMinutes(meetingTime.meetingTimeEnd) },
+      const availability = await makeApiCall<IGenericReponse<IUserAvailabilityResponse[]>>({
+        endpoint: `user/${newMeeting.target_user!}/availability`,
+        method: "GET",
       });
-      if (res.type === "Success") {
-        setToaster({
-          message: "Availability is added Successfully",
-          isVisible: true,
-          type: "positive",
-        });
-        fetchUserMeetings()
+      const isEligible = isEligibleForMeeting(scheduledMeetings, availability.data, newMeeting.day!, convertTimeToMinutes(meetingTime.meetingTimeEnd) - convertTimeToMinutes(meetingTime.meetingTimeStart))
+      const isSlotOverlapped = isSlotOverlapping(scheduledMeetings, newMeeting.day!, convertTimeToMinutes(meetingTime.meetingTimeStart), convertTimeToMinutes(meetingTime.meetingTimeEnd))
+      if (isEligible) {
+        if (!isSlotOverlapped) {
+          const res = await makeApiCall<IGenericReponse<null>>({
+            endpoint: `user/${loginToken.token}/meeting`,
+            method: "POST",
+            data: { ...newMeeting, startTime: convertTimeToMinutes(meetingTime.meetingTimeStart), endTime: convertTimeToMinutes(meetingTime.meetingTimeEnd) },
+          });
+          if (res.type === "Success") {
+            setToaster({
+              message: "Meeting added Successfully",
+              isVisible: true,
+              type: "positive",
+            });
+            fetchUserMeetings()
+          }
+        } else {
+          setToaster({ message: 'Timeslot already Existed', isVisible: true, type: "negative" });
+        }
+      } else {
+        setToaster({ message: 'Meetings already booked for selected Day', isVisible: true, type: "negative" });
       }
     } catch (e) {
       setToaster({ message: e as string, isVisible: true, type: "negative" });
@@ -161,6 +184,42 @@ const Meeting = () => {
       setToaster({ message: "", isVisible: false, type: "positive" });
     }, 3000);
   }
+  function isEligibleForMeeting(meetings: IMeetingRecords[], availabilities: IUserAvailabilityResponse[], day: number, slot: number): boolean {
+    const scheduledTime = meetings
+      .filter((meeting) => meeting.meeting_day === day)
+      .reduce((acc, meeting) => {
+        return acc + (meeting.meeting_end - meeting.meeting_start)
+      }, 0);
+
+    const availability = availabilities.find((availability) => day >= availability.available_day_start && day <= availability.available_day_end);
+    if (!availability) {
+      return false; // No availability for the given day
+    }
+    const selectedDayMeetings = meetings.filter(meeting => meeting.meeting_day === day)
+    const availableTime = (parseInt(availability.available_time_end) - parseInt(availability.available_time_start)) - (availability.buffer_time * 2 * selectedDayMeetings.length);
+
+    // Calculate remaining available time after considering scheduled meetings
+    const remainingTime = availableTime - scheduledTime;
+
+    // Check if the incoming slot is less than or equal to the remaining available time
+    return slot <= remainingTime;
+  }
+
+  function isSlotOverlapping(meetings: IMeetingRecords[], day: number, slotStart: number, slotEnd: number): boolean {
+    const dayMeetings = meetings.filter((meeting) => meeting.meeting_day === day);
+
+
+    for (const meeting of dayMeetings) {
+      if ((slotStart >= meeting.meeting_start && slotStart < meeting.meeting_end) ||
+        (slotEnd > meeting.meeting_start && slotEnd <= meeting.meeting_end) ||
+        (slotStart <= meeting.meeting_start && slotEnd >= meeting.meeting_end)) {
+        return true; // Overlapping slot  
+      }
+    }
+    return false; // Non-overlapping slot
+  }
+
+
   const handleLogout = async () => {
     try {
       setIsLoading(true);
@@ -172,9 +231,12 @@ const Meeting = () => {
         router.push("/login");
       }
     } catch (e) {
-      console.error(e);
+      setToaster({ message: e as string, type: 'negative', isVisible: true })
     }
     setIsLoading(false);
+    setTimeout(() => {
+      setToaster({ message: '', type: 'positive', isVisible: false })
+    }, 3000)
   };
   const handleGoToAvailabilityPage = () => {
     router.push("/availability");
@@ -190,7 +252,7 @@ const Meeting = () => {
         method: "DELETE",
       });
       if (res.type === 'Success') {
-        const selectedMeetingIndex = scheduledMeetings.findIndex(meeting => meeting.id === meetingId)
+        const selectedMeetingIndex = scheduledMeetings.findIndex(meeting => meeting.meeting_id === meetingId)
         if (selectedMeetingIndex !== -1) {
           scheduledMeetings.splice(selectedMeetingIndex, 1)
           setToaster({ message: 'Meeting Cancelled', isVisible: true, type: 'positive' })
@@ -303,7 +365,7 @@ const Meeting = () => {
                         {convertMinutesToTime(meeting.meeting_start)} - {convertMinutesToTime(meeting.meeting_end)}
                       </span>
                     </div>
-                    <Button label="Cancel" loading={isCancellingMeeting === meeting.id} className="p-0.5 w-16 text-xs" onClick={() => handleCancelMeeting(meeting.id)} />
+                    <Button label="Cancel" loading={isCancellingMeeting === meeting.meeting_id} className="p-0.5 w-16 text-xs" onClick={() => handleCancelMeeting(meeting.meeting_id)} />
                   </div>
                 ))}
               </div>

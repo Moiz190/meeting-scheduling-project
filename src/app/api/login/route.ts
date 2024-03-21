@@ -34,12 +34,9 @@ export async function POST(request: Request, response: NextApiResponse) {
       type: "Success",
       code: 200,
     });
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json({
-      message: "Unexpected Server error",
-    }, {
-      status:
-        500
-    });
+      message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
+  }, { status: 500 })
   }
 }

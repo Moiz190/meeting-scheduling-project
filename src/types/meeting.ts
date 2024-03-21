@@ -11,6 +11,7 @@ export interface IMeetingRecords {
     meeting_end: number,
     meeting_day: number,
     source_user_name: string,
+    meeting_id:number,
     source_user_id: number,
     target_user_name: string,
     target_user_id: number,

@@ -1,8 +1,23 @@
 ## Getting Started
 
-node version required:
-
+requirement for starting the project
 node 18 or higher
+dbeaver 24.0.0 or higher
+postgres server 16 or higher
+
+install node 18 or higher 
+
+install postgres server 16 or higher 
+
+install dbeaver 24.0.0 or higher
+
+create a new database and connect it with backend
+
+run "npx sequelize-cli db:migrate" for migration
+
+run npm i 
+
+run npm run dev
 
 First, run the development server:
 

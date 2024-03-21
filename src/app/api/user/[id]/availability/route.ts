@@ -20,9 +20,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
             type: 'Success',
             code: 200
         })
-    } catch (error) {
+    } catch (e) {
         return NextResponse.json({
-            message: error
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
         }, { status: 500 })
     }
 }
@@ -62,7 +62,7 @@ export async function POST(req: Request, res: NextApiResponse) {
         })
     } catch (e) {
         return NextResponse.json({
-            message: e
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
         }, { status: 500 })
     }
 }

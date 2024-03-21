@@ -133,8 +133,11 @@ const Availability = () => {
         router.push("/login");
       }
     } catch (e) {
-      console.error(e);
+      setToaster({message:e as string,type:'negative',isVisible:true})
     }
+    setTimeout(()=>{
+      setToaster({message:'',type:'positive',isVisible:false})
+    },3000)
     setIsLoading(false);
   };
   const getUserAvailableDate = async () => {
@@ -150,14 +153,13 @@ const Availability = () => {
         setAvailabilityRecords(response.data);
       }
     } catch (e) {
-      console.error(e);
 
       setToaster({ message: e as string, isVisible: true, type: "negative" });
-      setTimeout(() => {
-        setToaster({ message: "", isVisible: false, type: "positive" });
-      }, 3000);
     }
     setIsFetchingDateRecords(false);
+    setTimeout(() => {
+      setToaster({ message: "", isVisible: false, type: "positive" });
+    }, 3000);
   };
   const handleAddAvailability = async () => {
 

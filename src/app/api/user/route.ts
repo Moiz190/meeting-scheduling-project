@@ -11,7 +11,9 @@ export async function GET(request: Request, response: NextApiResponse) {
             type: 'Success',
             code: 200
         })
-    } catch (error) {
-        console.error(error)
+    } catch (e) {
+        return NextResponse.json({
+            message: typeof (e) === 'object' ? 'Unexpected Error Occurred' : e
+        }, { status: 500 })
     }
 }
