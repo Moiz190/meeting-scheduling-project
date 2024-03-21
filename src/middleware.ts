@@ -11,7 +11,7 @@ export const middleware = (req: NextRequest) => {
     if (!token && (req.nextUrl.pathname === "/meeting" || req.nextUrl.pathname === "/availability")) {
         return NextResponse.redirect(new URL("/login", req.url));
     }
-    if (token && req.nextUrl.pathname !== "/meeting") {
+    if (token && (req.nextUrl.pathname !== "/meeting" && req.nextUrl.pathname !== "/availability")) {
         return NextResponse.redirect(new URL("/meeting", req.url));
     }
     return NextResponse.next()
